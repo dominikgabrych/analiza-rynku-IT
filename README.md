@@ -1,5 +1,7 @@
 # analiza-rynku-IT
 
+[![CI](https://github.com/dominikgabrych/analiza-rynku-IT/actions/workflows/ci.yml/badge.svg)](https://github.com/dominikgabrych/analiza-rynku-IT/actions/workflows/ci.yml)
+
 IT job market analysis (*analiza rynku IT* is Polish for "IT market analysis"). The tool collects job postings, extracts seniority, skills and salary ranges with a local LLM, and uses SQL to show what employers expect at each level, from internship to senior, with AI roles analyzed against the IT market as a whole.
 
 **Status:** early development.
@@ -27,3 +29,7 @@ uv run ruff format   # format
 ```
 
 Architecture decisions are recorded in [docs/adr](docs/adr/).
+
+## License
+
+[MIT](LICENSE)

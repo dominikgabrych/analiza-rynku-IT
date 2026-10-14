@@ -3,6 +3,8 @@ name = "analiza-rynku-it"
 version = "0.1.0"
 description = "IT job market analysis: skills, seniority levels and salary ranges from job postings."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.14"
 dependencies = []
 

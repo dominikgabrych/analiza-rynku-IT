@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Actions are pinned to commit SHAs, so they need explicit update PRs
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

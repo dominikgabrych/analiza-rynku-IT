@@ -1,0 +1,29 @@
+[project]
+name = "analiza-rynku-it"
+version = "0.1.0"
+description = "IT job market analysis: skills, seniority levels and salary ranges from job postings."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "radar"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP"]
+
+[tool.pytest]
+minversion = "9.0"
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]
+strict = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.0",
+]

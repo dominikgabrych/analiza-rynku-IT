@@ -2,7 +2,7 @@
 
 IT job market analysis (*analiza rynku IT* is Polish for "IT market analysis"). The tool collects job postings, extracts seniority, skills and salary ranges with a local LLM, and uses SQL to show what employers expect at each level, from internship to senior, with AI roles analyzed against the IT market as a whole.
 
-**Status:** early development; nothing to run yet.
+**Status:** early development.
 
 ## Principles
 
@@ -14,3 +14,16 @@ IT job market analysis (*analiza rynku IT* is Polish for "IT market analysis"). 
 ## Planned stack
 
 Python (uv, ruff, pytest) · FastAPI · PostgreSQL with pgvector · Ollama · n8n · Grafana · Arize Phoenix · Docker Compose
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/), which installs the Python version from `.python-version` and the locked dependencies.
+
+```sh
+uv sync              # create .venv with Python and the dev tools
+uv run pytest        # run the tests
+uv run ruff check    # lint
+uv run ruff format   # format
+```
+
+Architecture decisions are recorded in [docs/adr](docs/adr/).

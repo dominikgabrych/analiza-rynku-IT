@@ -9,3 +9,8 @@ services:
     environment:
       POSTGRES_DB: radar
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:

@@ -14,8 +14,7 @@ dist/
 htmlcov/
 
 # Secrets: only .env.example is tracked
-.env
-.env.*
+.env*
 !.env.example
 
 # Local data and database backups never go into the repository

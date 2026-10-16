@@ -2,7 +2,7 @@ services:
 
   db:
     image: pgvector/pgvector:0.8.7-pg18-trixie
-    restart: always
+    restart: unless-stopped
     shm_size: 128mb
     ports: 
       - "127.0.0.1:5432:5432"
@@ -11,6 +11,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d radar"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   pgdata:

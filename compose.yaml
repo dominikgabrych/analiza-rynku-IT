@@ -8,8 +8,10 @@ services:
     environment:
       POSTGRES_DB: radar
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      RADAR_READER_PASSWORD: ${RADAR_READER_PASSWORD:?Set RADAR_READER_PASSWORD in .env}
     volumes:
       - pgdata:/var/lib/postgresql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "radar"]
       interval: 10s

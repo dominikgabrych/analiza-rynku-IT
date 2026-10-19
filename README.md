@@ -28,6 +28,18 @@ uv run ruff check    # lint
 uv run ruff format   # format
 ```
 
+### Database
+
+PostgreSQL with pgvector runs in Docker Compose. Copy `.env.example` to `.env` and set the passwords first; `--env-file .env` passes them to the commands below.
+
+```sh
+docker compose up -d                           # start PostgreSQL; wait for (healthy) in `docker compose ps`
+uv run --env-file .env alembic upgrade head    # apply the schema migrations
+uv run --env-file .env pytest                  # run all tests, including the database tests
+```
+
+The schema changes only through plain-SQL migrations in `db/migrations/versions/`. Without `--env-file`, `pytest` skips the database tests; each database test creates its own throwaway database and drops it afterwards.
+
 Architecture decisions are recorded in [docs/adr](docs/adr/).
 
 ## License

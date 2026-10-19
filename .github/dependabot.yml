@@ -5,3 +5,17 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Skip releases younger than a week; security updates are not delayed
+    cooldown:
+      default-days: 7
+
+  # Python packages are pinned in uv.lock; one grouped PR a month
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      python:
+        patterns: ["*"]

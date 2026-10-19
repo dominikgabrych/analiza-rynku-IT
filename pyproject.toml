@@ -6,7 +6,10 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "alembic>=1.20.0",
+    "psycopg[binary]>=3.3.6",
+]
 
 [build-system]
 requires = ["uv_build>=0.13.1,<0.14"]
@@ -23,6 +26,10 @@ minversion = "9.0"
 testpaths = ["tests"]
 addopts = ["--import-mode=importlib"]
 strict = true
+markers = ["db: needs a running PostgreSQL server (POSTGRES_PASSWORD set)"]
+
+[tool.alembic]
+script_location = "%(here)s/db/migrations"
 
 [dependency-groups]
 dev = [

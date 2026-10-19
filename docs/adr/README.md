@@ -9,6 +9,8 @@ Each ADR records one decision: its context, what was decided, the alternatives c
 | [0003](0003-read-only-database-role.md) | Read-only database role for dashboards and other readers | accepted |
 | [0004](0004-ci-with-pinned-actions.md) | CI on GitHub Actions with actions pinned to commit SHAs | accepted |
 | [0005](0005-local-llm-with-ollama.md) | Local LLM served by Ollama on the host | accepted |
+| [0006](0006-migrations-with-alembic.md) | Schema migrations with Alembic in plain SQL, without an ORM | accepted |
+| [0007](0007-posting-presence-history.md) | Posting presence stored as validity periods | accepted |
 
 ## When to write one
 

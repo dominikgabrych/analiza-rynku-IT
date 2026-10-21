@@ -15,7 +15,7 @@ from radar.db import database_url
 pytestmark = pytest.mark.db
 
 PYPROJECT = Path(__file__).parents[1] / "pyproject.toml"
-TABLES = {"runs", "postings", "posting_periods", "posting_pages"}
+TABLES = {"runs", "postings", "posting_periods", "posting_details"}
 
 
 def migrate(engine: Engine, action, revision: str) -> None:
@@ -116,12 +116,12 @@ def test_jsonb_columns_use_lz4(migrated):
             text(
                 "SELECT attrelid::regclass::text, attname, attcompression FROM pg_attribute "
                 "WHERE (attrelid, attname) IN "
-                "(('posting_periods'::regclass, 'list_data'), ('posting_pages'::regclass, 'data'))"
+                "(('posting_periods'::regclass, 'list_data'), ('posting_details'::regclass, 'data'))"
             )
         )
         assert {(table, column): method for table, column, method in rows} == {
             ("posting_periods", "list_data"): "l",
-            ("posting_pages", "data"): "l",
+            ("posting_details", "data"): "l",
         }
 
 
@@ -173,10 +173,10 @@ def test_inconsistent_period_is_rejected(migrated, posting, columns, constraint)
             "runs_status_matches_finished_at",
         ),
         (
-            "INSERT INTO posting_pages (posting_id, first_run_id, first_fetched_at, "
+            "INSERT INTO posting_details (posting_id, first_run_id, first_fetched_at, "
             "last_fetched_at, content_hash, data) "
             "VALUES (:posting_id, :run_id, now(), now(), '\\x00', '{}')",
-            "posting_pages_content_hash_check",
+            "posting_details_content_hash_check",
         ),
     ],
 )
@@ -188,7 +188,7 @@ def test_inconsistent_run_or_page_is_rejected(migrated, posting, statement, cons
 
 def test_same_page_content_is_stored_once(migrated, posting):
     insert = text(
-        "INSERT INTO posting_pages (posting_id, first_run_id, first_fetched_at, "
+        "INSERT INTO posting_details (posting_id, first_run_id, first_fetched_at, "
         "last_fetched_at, content_hash, data) "
         "VALUES (:posting_id, :run_id, now(), now(), sha256('{}'), '{}')"
     )
@@ -196,7 +196,36 @@ def test_same_page_content_is_stored_once(migrated, posting):
         connection.execute(insert, posting)
     with pytest.raises(IntegrityError) as error, migrated.begin() as connection:
         connection.execute(insert, posting)
-    assert error.value.orig.diag.constraint_name == "posting_pages_content_unique"
+    assert error.value.orig.diag.constraint_name == "posting_details_content_unique"
+
+
+def names_with_prefix(engine: Engine, prefix: str) -> set[str]:
+    """Tables, indexes, sequences and constraints whose names start with prefix."""
+    with engine.connect() as connection:
+        rows = connection.execute(
+            text(
+                "SELECT relname FROM pg_class WHERE relname LIKE :pattern "
+                "UNION SELECT conname FROM pg_constraint WHERE conname LIKE :pattern"
+            ),
+            {"pattern": f"{prefix}%"},
+        )
+        return set(rows.scalars())
+
+
+def test_posting_pages_is_renamed_with_all_its_objects(migrated):
+    # A constraint or index left with the old name would mislead anyone reading
+    # errors or \d output.
+    assert names_with_prefix(migrated, "posting_pages") == set()
+    renamed = names_with_prefix(migrated, "posting_details")
+    assert {
+        "posting_details",
+        "posting_details_id_seq",
+        "posting_details_pkey",
+    } <= renamed
+
+    migrate(migrated, command.downgrade, "0001")
+    assert names_with_prefix(migrated, "posting_details") == set()
+    assert len(names_with_prefix(migrated, "posting_pages")) == len(renamed)
 
 
 def test_downgrade_removes_everything_and_upgrade_works_again(migrated):

@@ -37,6 +37,10 @@ jobs:
         with:
           version: "0.13.1"
 
+      - name: Install age
+        # Encrypts the off-site backup copy; the tests encrypt and decrypt with it
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends age
+
       - name: Install dependencies
         run: uv sync --locked
 

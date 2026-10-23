@@ -1,16 +1,12 @@
 """Migrations against a real PostgreSQL server, in a throwaway database per test."""
 
-import os
-import uuid
 from pathlib import Path
 
 import pytest
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, text
 from sqlalchemy.exc import IntegrityError
-
-from radar.db import database_url
 
 pytestmark = pytest.mark.db
 
@@ -23,29 +19,6 @@ def migrate(engine: Engine, action, revision: str) -> None:
     with engine.begin() as connection:
         config.attributes["connection"] = connection
         action(config, revision)
-
-
-@pytest.fixture
-def engine():
-    if not os.environ.get("POSTGRES_PASSWORD"):
-        if os.environ.get("CI"):
-            pytest.fail(
-                "POSTGRES_PASSWORD must be set in CI, or the database tests never run"
-            )
-        pytest.skip("no database; run `uv run --env-file .env pytest` with Compose up")
-    # Never the real radar database: each test gets its own and drops it afterwards.
-    name = f"radar_test_{uuid.uuid4().hex[:12]}"
-    admin = create_engine(database_url("postgres"), isolation_level="AUTOCOMMIT")
-    with admin.connect() as connection:
-        connection.execute(text(f'CREATE DATABASE "{name}"'))
-    engine = create_engine(database_url(name))
-    try:
-        yield engine
-    finally:
-        engine.dispose()
-        with admin.connect() as connection:
-            connection.execute(text(f'DROP DATABASE "{name}" WITH (FORCE)'))
-        admin.dispose()
 
 
 @pytest.fixture

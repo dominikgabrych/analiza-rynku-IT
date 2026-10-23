@@ -34,11 +34,28 @@ PostgreSQL with pgvector runs in Docker Compose. Copy `.env.example` to `.env` a
 
 ```sh
 docker compose up -d                           # start PostgreSQL; wait for (healthy) in `docker compose ps`
-uv run --env-file .env alembic upgrade head    # apply the schema migrations
+uv run --env-file .env radar migrate           # back up, then apply pending schema migrations
 uv run --env-file .env pytest                  # run all tests, including the database tests
 ```
 
 The schema changes only through plain-SQL migrations in `db/migrations/versions/`. Without `--env-file`, `pytest` skips the database tests; each database test creates its own throwaway database and drops it afterwards.
+
+### Backups
+
+`radar backup` dumps the database with `pg_dump` into `BACKUP_DIR`, which belongs outside the Docker volume. It needs [age](https://age-encryption.org/) for the encrypted off-site copy; the settings are in `.env.example`.
+
+```sh
+uv run --env-file .env radar backup    # dump to recent/, keep the newest BACKUP_KEEP, refresh offsite/ weekly
+uv run --env-file .env radar migrate   # dump to pre-migration/, then apply pending migrations
+```
+
+| Folder | Contents |
+| --- | --- |
+| `recent/` | the newest backups, rotated by count |
+| `pre-migration/` | one backup before each migration, never rotated |
+| `offsite/` | one age-encrypted copy, replaced when older than 7 days; the only folder to sync to cloud storage |
+
+Apply migrations to a database with data through `radar migrate`, not `alembic upgrade head`, so that a backup always comes first. [ADR 0008](docs/adr/0008-backups-with-pg-dump-and-age.md) explains the design.
 
 Architecture decisions are recorded in [docs/adr](docs/adr/).
 

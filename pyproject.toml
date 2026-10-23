@@ -11,6 +11,9 @@ dependencies = [
     "psycopg[binary]>=3.3.6",
 ]
 
+[project.scripts]
+radar = "radar.cli:main"
+
 [build-system]
 requires = ["uv_build>=0.13.1,<0.14"]
 build-backend = "uv_build"
